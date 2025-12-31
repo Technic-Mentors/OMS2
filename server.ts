@@ -4,7 +4,6 @@ import path from "path";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import cors from "cors";
-import pool from "./database/db";
 import fileUpload from "express-fileupload";
 import loginRoutes from "./routes/login.routes";
 import adminUserRoutes from "./routes/adminUser.routes";
@@ -91,11 +90,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(` Backend is running on http://localhost:${PORT}`);
+  console.log(` Backend is running on ${PORT}`);
 });
 
-
-
-
 export default app;
-
