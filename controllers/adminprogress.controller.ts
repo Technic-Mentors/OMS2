@@ -9,7 +9,7 @@ interface AuthenticatedRequest extends Request {
 export const getAllProgress = async (req: Request, res: Response) => {
   try {
     const query = `
-SELECT 
+  SELECT 
   pr.id,
   pr.employee_id,
   COALESCE(e.employee_name, u.name) AS employeeName,
@@ -19,11 +19,10 @@ SELECT
   pr.note,
   pr.progressStatus
 FROM progress pr
-LEFT JOIN omsdb.employee_lifeline e ON pr.employee_id = e.employee_id
+LEFT JOIN employee_lifeline e ON pr.employee_id = e.employee_id
 LEFT JOIN login u ON pr.employee_id = u.id
 LEFT JOIN projects p ON pr.projectId = p.id
 ORDER BY pr.id DESC
-
 `;
 
     const [rows] = await pool.query<RowDataPacket[]>(query);
