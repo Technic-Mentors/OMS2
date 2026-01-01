@@ -2,15 +2,10 @@ import { Request, Response } from "express";
 import pool from "../database/db";
 import moment from "moment-timezone";
 
-export const getAttendance = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getAttendance = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
-    const today = new Date().toLocaleDateString("sv-SE", {
-      timeZone: "Asia/Karachi",
-    });
+    const today = moment.tz("Asia/Karachi").format("YYYY-MM-DD");
 
     const [rows]: any = await pool.query(
       "SELECT * FROM attendance WHERE userId = ? AND date = ?",
@@ -22,12 +17,17 @@ export const getAttendance = async (
       return;
     }
 
+    rows[0].date = moment
+      .tz(rows[0].date, "Asia/Karachi")
+      .format("YYYY-MM-DD");
+
     res.json(rows[0]);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const markAttendance = async (
   req: Request,
