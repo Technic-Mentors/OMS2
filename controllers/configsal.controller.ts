@@ -20,7 +20,7 @@ export const getSalaries = async (req: Request, res: Response) => {
       `SELECT c.id, e.employee_id, c.salary_amount,
               c.total_salary, c.config_date
        FROM configempsalaries c
-       LEFT JOIN employee_lifeline e ON c.employee_id = e.id
+       LEFT JOIN employee_lifeline e ON c.employee_id = e.employee_id
        WHERE e.employee_id LIKE ? AND c.status='ACTIVE'
        ORDER BY c.config_date DESC
        LIMIT ? OFFSET ?`,
