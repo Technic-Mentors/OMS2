@@ -31,6 +31,8 @@ import saleRoutes from "./routes/sale.routes";
 import paymentRoutes from "./routes/payment.routes";
 import quotationRoutes from "./routes/quotation.routes";
 import calendarRoutes from "./routes/calendar.routes";
+import configsalRoutes from "./routes/configsal.routes";
+
 
 import session from "express-session";
 
@@ -82,13 +84,13 @@ app.use("/api/admin", saleRoutes);
 app.use("/api/admin", paymentRoutes);
 app.use("/api/admin", quotationRoutes);
 app.use("/api/admin", calendarRoutes);
+app.use("/api/admin", configsalRoutes);
 
-// Simple route to check backend
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Backend is up and running 🚀");
 });
 
-// Start the server
 app.listen(PORT, () => {
   console.log(` Backend is running on ${PORT}`);
 });

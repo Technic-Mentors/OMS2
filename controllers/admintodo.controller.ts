@@ -4,7 +4,11 @@ import { RowDataPacket, ResultSetHeader } from "mysql2";
 
 const normalizeDate = (date: string | null | undefined) => {
   if (!date) return null;
-  return date.slice(0, 10);
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const day = d.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 export interface RequestWithUser extends Request {
