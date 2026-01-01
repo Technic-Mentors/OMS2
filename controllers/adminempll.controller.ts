@@ -81,9 +81,6 @@ export const addEmpll = async (req: Request, res: Response): Promise<void> => {
     );
 
     const newLifeLine = rows[0];
-    newLifeLine.date = newLifeLine.date
-      ? new Date(newLifeLine.date).toISOString().split("T")[0]
-      : null;
 
     res.status(201).json({
       message: "Employee LifeLine added successfully",
@@ -110,7 +107,7 @@ export const getEmpll = async (req: Request, res: Response): Promise<void> => {
 
     const formattedRows = rows.map((row: any) => ({
       ...row,
-      date: row.date ? new Date(row.date).toISOString().split("T")[0] : null,
+      date: row.date,
     }));
 
     res.status(200).json({
