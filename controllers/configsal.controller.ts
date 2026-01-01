@@ -8,28 +8,34 @@ export const getSalaries = async (req: Request, res: Response) => {
     const limit = 10;
     const offset = (page - 1) * limit;
 
+    // Get total count of active salaries matching search
     const [totalResult] = await pool.query(
-      `SELECT COUNT(*) as total FROM configempsalaries c
-       JOIN employee_lifeline e ON c.employee_id = e.employee_id
-       WHERE e.employee_id LIKE ? AND c.status='ACTIVE'`,
-      [`%${search}%`]
+      `SELECT COUNT(*) as total 
+       FROM configempsalaries c
+       LEFT JOIN employee_lifeline e ON c.employee_id = e.employee_id
+       WHERE c.status='ACTIVE' 
+       AND (e.employee_name LIKE ? OR ? = '')`,
+      [`%${search}%`, search]
     );
     const total = (totalResult as any)[0].total;
 
+    // Fetch salaries with allowances and employee_name
     const [rows] = await pool.query(
-      `SELECT c.id, e.employee_id, e.employee_name, 
-          c.salary_amount, 
-          c.emp_of_mon_allowance, 
-          c.transport_allowance, 
-          c.medical_allowance, 
-          c.total_salary, 
-          c.config_date
-   FROM configempsalaries c
-   LEFT JOIN employee_lifeline e ON c.employee_id = e.employee_id
-   WHERE e.employee_name LIKE ? AND c.status='ACTIVE'
-   ORDER BY c.config_date DESC
-   LIMIT ? OFFSET ?`,
-      [`%${search}%`, limit, offset]
+      `SELECT c.id, c.employee_id, 
+              COALESCE(e.employee_name, "Unknown") as employee_name, 
+              c.salary_amount, 
+              c.emp_of_mon_allowance, 
+              c.transport_allowance, 
+              c.medical_allowance, 
+              c.total_salary, 
+              c.config_date
+       FROM configempsalaries c
+       LEFT JOIN employee_lifeline e ON c.employee_id = e.employee_id
+       WHERE c.status='ACTIVE' 
+       AND (e.employee_name LIKE ? OR ? = '')
+       ORDER BY c.config_date DESC
+       LIMIT ? OFFSET ?`,
+      [`%${search}%`, search, limit, offset]
     );
 
     res.json({ salaries: rows, total });
@@ -38,6 +44,7 @@ export const getSalaries = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching salaries" });
   }
 };
+
 
 export const getSalaryById = async (
   req: Request,
