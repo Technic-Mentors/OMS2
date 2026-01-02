@@ -3,52 +3,30 @@ import pool from "../database/db";
 
 export const getSalaries = async (req: Request, res: Response) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const search = (req.query.search as string) || "";
-    const limit = 10;
-    const offset = (page - 1) * limit;
-    const searchQuery = `%${search}%`;
-
-    // Count only salaries that match the search
-    const [totalResult] = await pool.query(
-      `SELECT COUNT(*) as total
-       FROM configempsalaries c
-       LEFT JOIN employee_lifeline e ON c.employee_id = e.employee_id
-       WHERE c.status='ACTIVE'
-       AND e.employee_name LIKE ?`,
-      [searchQuery]
-    );
-    const total = (totalResult as any)[0].total;
-
-    // Fetch paginated rows
     const [rows] = await pool.query(
       `SELECT 
-          c.id,
-          c.employee_id,
-          e.employee_name,
-          c.salary_amount,
-          c.emp_of_mon_allowance,
-          c.transport_allowance,
-          c.medical_allowance,
-          c.total_salary,
-          c.config_date
+         c.id,
+         c.employee_id,
+         e.employee_name,
+         c.salary_amount,
+         c.emp_of_mon_allowance,
+         c.transport_allowance,
+         c.medical_allowance,
+         c.total_salary,
+         c.config_date
        FROM configempsalaries c
        LEFT JOIN employee_lifeline e 
          ON c.employee_id = e.employee_id
        WHERE c.status = 'ACTIVE'
-         AND e.employee_name LIKE ?
-       ORDER BY c.config_date DESC
-       LIMIT ? OFFSET ?`,
-      [searchQuery, limit, offset]
+       ORDER BY c.config_date DESC`
     );
 
-    res.json({ salaries: rows, total });
+    res.json({ salaries: rows, total: (rows as any).length });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching salaries" });
   }
 };
-
 
 export const getSalaryById = async (
   req: Request,
