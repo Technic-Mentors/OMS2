@@ -19,22 +19,24 @@ export const getSalaries = async (req: Request, res: Response) => {
     );
     const total = (totalResult as any)[0].total;
 
-    // Fetch salaries with allowances and employee_name
     const [rows] = await pool.query(
-      `SELECT c.id, c.employee_id, 
-              COALESCE(e.employee_id) as employee_name, 
-              c.salary_amount, 
-              c.emp_of_mon_allowance, 
-              c.transport_allowance, 
-              c.medical_allowance, 
-              c.total_salary, 
-              c.config_date
-       FROM configempsalaries c
-       LEFT JOIN employee_lifeline e ON c.employee_id = e.employee_id
-       WHERE c.status='ACTIVE' 
-       AND (e.employee_name LIKE ? OR ? = '')
-       ORDER BY c.config_date DESC
-       LIMIT ? OFFSET ?`,
+      `SELECT 
+      c.id,
+      c.employee_id,
+      e.employee_name,
+      c.salary_amount,
+      c.emp_of_mon_allowance,
+      c.transport_allowance,
+      c.medical_allowance,
+      c.total_salary,
+      c.config_date
+   FROM configempsalaries c
+   LEFT JOIN employee_lifeline e 
+     ON c.employee_id = e.employee_id
+   WHERE c.status = 'ACTIVE'
+     AND (e.employee_name LIKE ? OR ? = '')
+   ORDER BY c.config_date DESC
+   LIMIT ? OFFSET ?`,
       [`%${search}%`, search, limit, offset]
     );
 
@@ -44,7 +46,6 @@ export const getSalaries = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching salaries" });
   }
 };
-
 
 export const getSalaryById = async (
   req: Request,
