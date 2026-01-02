@@ -22,7 +22,7 @@ export const getSalaries = async (req: Request, res: Response) => {
     // Fetch salaries with allowances and employee_name
     const [rows] = await pool.query(
       `SELECT c.id, c.employee_id, 
-              COALESCE(e.employee_name, "Unknown") as employee_name, 
+              COALESCE(e.employee_id) as employee_name, 
               c.salary_amount, 
               c.emp_of_mon_allowance, 
               c.transport_allowance, 
