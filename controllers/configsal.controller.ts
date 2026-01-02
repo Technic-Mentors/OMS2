@@ -19,7 +19,7 @@ export const getSalaries = async (req: Request, res: Response) => {
     const total = (totalResult as any)[0].total;
 
     const [rows] = await pool.query(
-      `SELECT 
+  `SELECT 
       c.id,
       c.employee_id,
       e.employee_name,
@@ -34,10 +34,12 @@ export const getSalaries = async (req: Request, res: Response) => {
      ON c.employee_id = e.employee_id
    WHERE c.status = 'ACTIVE'
      AND (e.employee_name LIKE ? OR ? = '')
+   GROUP BY c.id   -- ensures each salary is unique
    ORDER BY c.config_date DESC
    LIMIT ? OFFSET ?`,
-      [`%${search}%`, search, limit, offset]
-    );
+  [`%${search}%`, search, limit, offset]
+);
+
 
     res.json({ salaries: rows, total });
   } catch (error) {
