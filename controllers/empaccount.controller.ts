@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import pool from "../database/db";
 import { v4 as uuidv4 } from "uuid";
 
+
 export const addEmployeePayment = async (req: Request, res: Response) => {
   try {
     const {
