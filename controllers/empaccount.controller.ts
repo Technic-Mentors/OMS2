@@ -93,14 +93,15 @@ export const getEmployeeRefunds = async (req: Request, res: Response) => {
         refund_amount AS refundAmount,
         transaction_date AS date
        FROM employee_accounts
-       WHERE employee_id = ? AND refund_amount > 0
+       WHERE employee_id = ?
+         AND COALESCE(refund_amount, 0) > 0
        ORDER BY transaction_date ASC`,
       [id]
     );
 
     res.json(rows);
   } catch (error) {
-    console.error(error);
+    console.error("getEmployeeRefunds error:", error);
     res.status(500).json({ message: "Failed to fetch refunds" });
   }
 };
