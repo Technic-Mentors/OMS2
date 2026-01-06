@@ -40,12 +40,22 @@ dotenv.config();
 const app: Application = express();
 const PORT: number = Number(process.env.PORT) || 3001;
 
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
-const SESSION_SECRET = process.env.SESSION_SECRET || "your_secret_key";
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://oms-indol.vercel.app",
+];
 
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS error: origin ${origin} not allowed`));
+      }
+    },
     credentials: true,
   })
 );
@@ -53,7 +63,7 @@ app.use(
 app.options(
   "*",
   cors({
-    origin: FRONTEND_URL,
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -64,6 +74,7 @@ app.use(bodyParser.json());
 app.use(fileUpload());
 app.use("/uploads", express.static("uploads"));
 
+const SESSION_SECRET = process.env.SESSION_SECRET || "your_secret_key";
 app.use(
   session({
     secret: SESSION_SECRET,
