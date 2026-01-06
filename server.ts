@@ -1,4 +1,5 @@
 import express, { Application, Request, Response } from "express";
+import path from "path";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -34,14 +35,17 @@ import calendarRoutes from "./routes/calendar.routes";
 import configsalRoutes from "./routes/configsal.routes";
 import empaccountRoutes from "./routes/empaccount.routes";
 
-const app: Application = express();
-const PORT: number = 3001;
-
 dotenv.config();
+
+const app: Application = express();
+const PORT: number = Number(process.env.PORT) || 3001;
+
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const SESSION_SECRET = process.env.SESSION_SECRET || "your_secret_key";
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: FRONTEND_URL,
     credentials: true,
   })
 );
@@ -49,28 +53,31 @@ app.use(
 app.options(
   "*",
   cors({
-    origin: "http://localhost:5173",
+    origin: FRONTEND_URL,
     credentials: true,
   })
 );
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 app.use(fileUpload());
 app.use("/uploads", express.static("uploads"));
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "your_secret_key",
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
+
+app.use(express.static(path.join(__dirname, "dist")));
 
 app.use("/api", loginRoutes);
 app.use("/api/admin", adminUserRoutes);
@@ -106,7 +113,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(` Backend is running on ${PORT}`);
+  console.log(`Backend is running on port ${PORT}`);
 });
 
 export default app;
