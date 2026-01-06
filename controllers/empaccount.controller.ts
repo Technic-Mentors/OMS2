@@ -7,9 +7,7 @@ export const addEmployeePayment = async (req: Request, res: Response) => {
  
     const {
       employeeId,
-      payableSalary,
       withdrawAmount,
-      balance,
       paymentMethod,
       paymentDate,
     } = req.body;
@@ -25,7 +23,6 @@ export const addEmployeePayment = async (req: Request, res: Response) => {
         invoiceNo,
         paymentDate,
         withdrawAmount,
-        balance,
         paymentMethod,
       ]
     );
@@ -41,7 +38,7 @@ export const addEmployeeRefund = async (req: Request, res: Response) => {
   try {
     const { v4: uuidv4 } = await import("uuid");
  
-    const { employeeId, refundAmount, balance, paymentMethod, date } = req.body;
+    const { employeeId, refundAmount,  paymentMethod, date } = req.body;
  
     const invoiceNo = `REF-${uuidv4().slice(0, 8)}`;
  
@@ -49,7 +46,7 @@ export const addEmployeeRefund = async (req: Request, res: Response) => {
       `INSERT INTO employee_accounts
        (employee_id, invoice_no, transaction_date, withdraw_amount, refund_amount, balance, payment_method)
        VALUES (?, ?, ?, 0, ?, ?, ?)`,
-      [employeeId, invoiceNo, date, refundAmount, balance, paymentMethod]
+      [employeeId, invoiceNo, date, refundAmount, paymentMethod]
     );
  
     res.status(201).json({ message: "Refund added successfully" });
