@@ -1,10 +1,71 @@
 import { Request, Response } from "express";
 import pool from "../database/db";
  
-export const addEmployeePayment = async (req: Request, res: Response) => {
-  try {
-    const { v4: uuidv4 } = await import("uuid");
+// 
+
+//   try {
+//     const { v4: uuidv4 } = await import("uuid");
  
+//     const {
+//       employeeId,
+//       withdrawAmount,
+//       balance,
+//       paymentMethod,
+//       paymentDate,
+//     } = req.body;
+ 
+//     const invoiceNo = `WIT-${uuidv4().slice(0, 8)}`;
+ 
+//     await pool.query(
+//       `INSERT INTO employee_accounts
+//        (employee_id, invoice_no, transaction_date, withdraw_amount, refund_amount, balance, payment_method)
+//        VALUES (?, ?, ?, ?, 0, ?, ?)`,
+//       [
+//         employeeId,
+//         invoiceNo,
+//         paymentDate,
+//         withdrawAmount,
+//         balance,
+//         paymentMethod,
+//       ]
+//     );
+ 
+//     res.status(201).json({ message: "Payment withdraw added successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Failed to add payment withdraw" });
+//   }
+// };
+ 
+// export const addEmployeeRefund = async (req: Request, res: Response) => {
+//   try {
+//     const { v4: uuidv4 } = await import("uuid");
+ 
+//     const { employeeId, refundAmount, balance, paymentMethod, date } = req.body;
+ 
+//     const invoiceNo = `REF-${uuidv4().slice(0, 8)}`;
+ 
+//     await pool.query(
+//       `INSERT INTO employee_accounts
+//        (employee_id, invoice_no, transaction_date, withdraw_amount, refund_amount, balance, payment_method)
+//        VALUES (?, ?, ?, 0, ?, ?, ?)`,
+//       [employeeId, invoiceNo, date, refundAmount, balance, paymentMethod]
+//     );
+ 
+//     res.status(201).json({ message: "Refund added successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Failed to add refund" });
+//   }
+// };
+
+
+
+export const addEmployeePayment = async (req: Request, res: Response):Promise <void> => {
+  try {
+
+        const { v4: uuidv4 } = await import("uuid");
+
     const {
       employeeId,
       withdrawAmount,
@@ -12,52 +73,84 @@ export const addEmployeePayment = async (req: Request, res: Response) => {
       paymentMethod,
       paymentDate,
     } = req.body;
- 
+
+    // Basic validation
+    if (
+      !employeeId ||
+      withdrawAmount === undefined ||
+      balance === undefined ||
+      !paymentMethod ||
+      !paymentDate
+    ) {
+      res.status(400).json({ message: "All fields are required" });
+    }
+
     const invoiceNo = `WIT-${uuidv4().slice(0, 8)}`;
- 
+
     await pool.query(
       `INSERT INTO employee_accounts
        (employee_id, invoice_no, transaction_date, withdraw_amount, refund_amount, balance, payment_method)
-       VALUES (?, ?, ?, ?, 0, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
-        employeeId,
+        Number(employeeId),   // cast to int
         invoiceNo,
         paymentDate,
-        withdrawAmount,
-        balance,
+        Number(withdrawAmount),
+        0,                   // refund_amount
+        Number(balance),
         paymentMethod,
       ]
     );
- 
+
     res.status(201).json({ message: "Payment withdraw added successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to add payment withdraw" });
+    console.error("AddPayment Error:", error);
+    res.status(500).json({ message: "Failed to add payment withdraw", error });
   }
 };
- 
-export const addEmployeeRefund = async (req: Request, res: Response) => {
+
+// -------------------- ADD EMPLOYEE REFUND --------------------
+export const addEmployeeRefund = async (req: Request, res: Response):Promise <void> => {
   try {
-    const { v4: uuidv4 } = await import("uuid");
- 
+        const { v4: uuidv4 } = await import("uuid");
+
     const { employeeId, refundAmount, balance, paymentMethod, date } = req.body;
- 
+
+    // Basic validation
+    if (
+      !employeeId ||
+      refundAmount === undefined ||
+      balance === undefined ||
+      !paymentMethod ||
+      !date
+    ) {
+      res.status(400).json({ message: "All fields are required" });
+    }
+
     const invoiceNo = `REF-${uuidv4().slice(0, 8)}`;
- 
+
     await pool.query(
       `INSERT INTO employee_accounts
        (employee_id, invoice_no, transaction_date, withdraw_amount, refund_amount, balance, payment_method)
-       VALUES (?, ?, ?, 0, ?, ?, ?)`,
-      [employeeId, invoiceNo, date, refundAmount, balance, paymentMethod]
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        Number(employeeId),
+        invoiceNo,
+        date,
+        0,                     
+        Number(refundAmount),
+        Number(balance),
+        paymentMethod,
+      ]
     );
- 
+
     res.status(201).json({ message: "Refund added successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to add refund" });
+    console.error("AddRefund Error:", error);
+    res.status(500).json({ message: "Failed to add refund", error });
   }
 };
- 
+
 export const getEmployeePayments = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
