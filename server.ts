@@ -34,8 +34,6 @@ import calendarRoutes from "./routes/calendar.routes";
 import configsalRoutes from "./routes/configsal.routes";
 import empaccountRoutes from "./routes/empaccount.routes";
 
-
-
 import session from "express-session";
 
 const app: Application = express();
@@ -44,7 +42,17 @@ const PORT: number = 3001;
 dotenv.config();
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://oms-indol.vercel.app", "http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+app.options("*", cors());
+
 app.use(bodyParser.json());
 app.use(fileUpload());
 app.use("/uploads", express.static("uploads"));
@@ -57,6 +65,8 @@ app.use(
     cookie: { secure: false },
   })
 );
+
+
 
 app.use(express.static(path.join(__dirname, "dist")));
 
@@ -88,8 +98,6 @@ app.use("/api/admin", quotationRoutes);
 app.use("/api/admin", calendarRoutes);
 app.use("/api/admin", configsalRoutes);
 app.use("/api/admin", empaccountRoutes);
-
-
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Backend is up and running 🚀");
